@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Журнал посетителей</title>
   <link rel="stylesheet" href="assets/style.css">
 </head>
+
 <body>
   <main class="admin">
     <h1>Журнал посетителей</h1>
@@ -13,14 +15,20 @@
 
     <div class="gate">
       <input id="pass" type="password" placeholder="Пароль" autocomplete="off"
-             onkeydown="if(event.key==='Enter')load()">
+        onkeydown="if(event.key==='Enter')load()">
       <button onclick="load()">Показать</button>
     </div>
     <p id="status" class="status"></p>
 
     <table id="tbl" hidden>
       <thead>
-        <tr><th>#</th><th>Время</th><th>IP</th><th>User-Agent</th><th>Откуда</th></tr>
+        <tr>
+          <th>#</th>
+          <th>Время</th>
+          <th>IP</th>
+          <th>User-Agent</th>
+          <th>Откуда</th>
+        </tr>
       </thead>
       <tbody id="rows"></tbody>
     </table>
@@ -28,7 +36,7 @@
 
   <script>
     // Same Apps Script /exec URL as index.html:
-    const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE"; // <-- REQUIRED
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUz_EpGgTT6EHsWRzoQGp8IFJNewa0IPtRx2QEw-mtqGoubw8ufk7pIdE8KJT6Qnpnsw/exec"; // <-- REQUIRED
 
     const statusEl = document.getElementById("status");
 
@@ -54,8 +62,8 @@
       const s = document.createElement("script");
       s.id = "jsonp";
       s.src = SCRIPT_URL + "?action=list&callback=" + cb +
-              "&pass=" + encodeURIComponent(pass) +
-              "&_=" + (window.performance ? Math.floor(performance.now()) : "x");
+        "&pass=" + encodeURIComponent(pass) +
+        "&_=" + (window.performance ? Math.floor(performance.now()) : "x");
       s.onerror = function () { setStatus("Не удалось связаться с сервером.", true); };
       document.body.appendChild(s);
     }
@@ -91,4 +99,5 @@
     }
   </script>
 </body>
+
 </html>
