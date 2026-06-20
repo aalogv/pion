@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Пионы</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <section class="hero">
+    <a class="hero__link" href="admin.html">журнал</a>
+    <div class="hero__caption">
+      <h1>Пионы</h1>
+      <p>Цветение в полном разгаре</p>
+    </div>
+  </section>
+
+  <script>
+    // ===== Visitor logging =====
+    // Paste your Google Apps Script Web App URL (ends with /exec) below:
+    const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE"; // <-- REQUIRED
+
+    (async function logVisit() {
+      if (!SCRIPT_URL || SCRIPT_URL.indexOf("PASTE_") === 0) return; // not configured yet
+      let ip = "";
+      try {
+        const r = await fetch("https://api.ipify.org?format=json");
+        ip = (await r.json()).ip || "";
+      } catch (e) { /* ip lookup failed; still log time */ }
+      try {
+        const params = new URLSearchParams({
+          action: "log",
+          ip: ip,
+          t: new Date().toISOString(),
+          ua: navigator.userAgent,
+          ref: document.referrer || ""
+        });
+        // Fire-and-forget image beacon: no CORS preflight, never blocks the page.
+        new Image().src = SCRIPT_URL + "?" + params.toString();
+      } catch (e) { /* logging must never break the page */ }
+    })();
+  </script>
+</body>
+</html>

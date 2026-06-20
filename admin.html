@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Журнал посетителей</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main class="admin">
+    <h1>Журнал посетителей</h1>
+    <p><a href="index.html">&larr; на сайт</a></p>
+
+    <div class="gate">
+      <input id="pass" type="password" placeholder="Пароль" autocomplete="off"
+             onkeydown="if(event.key==='Enter')load()">
+      <button onclick="load()">Показать</button>
+    </div>
+    <p id="status" class="status"></p>
+
+    <table id="tbl" hidden>
+      <thead>
+        <tr><th>#</th><th>Время</th><th>IP</th><th>User-Agent</th><th>Откуда</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </main>
+
+  <script>
+    // Same Apps Script /exec URL as index.html:
+    const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE"; // <-- REQUIRED
+
+    const statusEl = document.getElementById("status");
+
+    function setStatus(msg, isError) {
+      statusEl.textContent = msg;
+      statusEl.className = "status" + (isError ? " error" : "");
+    }
+
+    function load() {
+      const pass = document.getElementById("pass").value;
+      if (!SCRIPT_URL || SCRIPT_URL.indexOf("PASTE_") === 0) {
+        setStatus("Сначала впишите URL Apps Script в admin.html.", true);
+        return;
+      }
+      if (!pass) { setStatus("Введите пароль.", true); return; }
+      setStatus("Загрузка…");
+      document.getElementById("tbl").hidden = true;
+
+      // JSONP: Apps Script /exec sends no CORS headers, so we read it via a <script> callback.
+      const cb = "renderList";
+      const old = document.getElementById("jsonp");
+      if (old) old.remove();
+      const s = document.createElement("script");
+      s.id = "jsonp";
+      s.src = SCRIPT_URL + "?action=list&callback=" + cb +
+              "&pass=" + encodeURIComponent(pass) +
+              "&_=" + (window.performance ? Math.floor(performance.now()) : "x");
+      s.onerror = function () { setStatus("Не удалось связаться с сервером.", true); };
+      document.body.appendChild(s);
+    }
+
+    // JSONP callback invoked by the Apps Script response.
+    function renderList(data) {
+      if (data && data.error === "auth") {
+        setStatus("Неверный пароль.", true);
+        return;
+      }
+      const rows = (data && data.rows) || [];
+      const tb = document.getElementById("rows");
+      tb.innerHTML = "";
+      rows.forEach(function (r, i) {
+        const tr = document.createElement("tr");
+        const time = r.t ? new Date(r.t).toLocaleString() : "";
+        tr.innerHTML =
+          "<td>" + (i + 1) + "</td>" +
+          "<td>" + esc(time) + "</td>" +
+          "<td>" + esc(r.ip || "") + "</td>" +
+          "<td class='ua'>" + esc(r.ua || "") + "</td>" +
+          "<td class='ua'>" + esc(r.ref || "") + "</td>";
+        tb.appendChild(tr);
+      });
+      document.getElementById("tbl").hidden = rows.length === 0;
+      setStatus("Всего посещений: " + rows.length + (rows.length === 0 ? " (пусто)" : ""));
+    }
+
+    function esc(s) {
+      return String(s).replace(/[&<>"]/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+      });
+    }
+  </script>
+</body>
+</html>
